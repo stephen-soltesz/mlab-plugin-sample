@@ -1,0 +1,9 @@
+{
+  "name": "MLab Plugin",
+  "version": "${FBSTRING_PLUGIN_VERSION}",
+  "description": "Plugin for M-Lab client-side tests",
+
+	"plugins": [
+    { "path": "npMLabPlugin.dll", "public": true }
+  ]
+}
