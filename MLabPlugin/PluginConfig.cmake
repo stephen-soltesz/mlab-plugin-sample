@@ -55,6 +55,8 @@ set(FBSTRING_MIMEType "application/x-mlabplugin")
 # any drawing:
 
 set (FB_GUI_DISABLED 1)
+add_firebreath_library(curl)
+add_firebreath_library(openssl)
 
 # Mac plugin settings. If your plugin does not draw, set these all to 0
 set(FBMAC_USE_QUICKDRAW 0)

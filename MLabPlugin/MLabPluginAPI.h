@@ -33,6 +33,10 @@ public:
     {
         registerMethod("echo",      make_method(this, &MLabPluginAPI::echo));
         registerMethod("testEvent", make_method(this, &MLabPluginAPI::testEvent));
+        registerMethod("add",       make_method(this, &MLabPluginAPI::add));
+        registerMethod("webtest",   make_method(this, &MLabPluginAPI::webtest));
+        registerMethod("transferTest",   make_method(this, &MLabPluginAPI::transferTest));
+        //registerMethod("hostname",  make_method(this, &MLabPluginAPI::add));
         
         // Read-write property
         registerProperty("testString",
@@ -44,6 +48,9 @@ public:
         registerProperty("version",
                          make_property(this,
                                        &MLabPluginAPI::get_version));
+        registerProperty("hostname",
+                         make_property(this,
+                                       &MLabPluginAPI::get_hostname));
     }
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -66,6 +73,8 @@ public:
 
     // Method echo
     FB::variant echo(const FB::variant& msg);
+    FB::variant webtest(const std::string& val);
+    FB::variant transferTest(const std::string& hostname, long h_length);
     
     // Event helpers
     FB_JSAPI_EVENT(test, 0, ());
@@ -73,6 +82,11 @@ public:
 
     // Method test-event
     void testEvent();
+
+    // adding a method for the first time..
+    long add(long a, long b, long c);
+
+    FB::variant get_hostname();
 
 private:
     MLabPluginWeakPtr m_plugin;
