@@ -74,7 +74,7 @@ public:
     // Method echo
     FB::variant echo(const FB::variant& msg);
     FB::variant webtest(const std::string& val);
-    FB::variant transferTest(const std::string& hostname, long h_length);
+    FB::VariantMap transferTest(const std::string& hostname, long h_length);
     
     // Event helpers
     FB_JSAPI_EVENT(test, 0, ());

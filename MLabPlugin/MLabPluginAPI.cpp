@@ -38,7 +38,7 @@ int send_length(int sd, int h_length) {
     return OK;
 }
 
-int recv_data(int sd, int h_length) {
+int recv_data(int sd, int h_length, FB::VariantMap& retMap) {
     double t1=0;
     double t2=0;
     struct timeval tv1;
@@ -71,6 +71,10 @@ int recv_data(int sd, int h_length) {
     gettimeofday(&tv2, NULL);
     t2 = tv2.tv_sec + tv2.tv_usec/1.0e6;
 
+    retMap["requested"] = h_length;
+    retMap["received"] = h_recvd;
+    retMap["time"] = t2-t1;
+    retMap["mbps"] = ((8.0*h_recvd)/((float)(t2-t1)))/1e6;
     fprintf(stderr, "requested: %d\n", h_length);
     fprintf(stderr, "received:  %d\n", h_recvd);
     fprintf(stderr, "t2-t1:     %f\n", t2-t1);
@@ -125,25 +129,33 @@ int connect_to_server(const char *hostname)
     }
 */
 
-FB::variant MLabPluginAPI::transferTest(const std::string& hostname, long h_length)
+
+//FB::variant MLabPluginAPI::transferTest(const std::string& hostname, long h_length)
+FB::VariantMap MLabPluginAPI::transferTest(const std::string& hostname, long h_length)
 {
+    FB::VariantMap retMap;
+
     int sd=0;
     sd = connect_to_server(hostname.c_str());
     if ( sd == -1 ) {
         perror("socket");
-        return -1;
+        retMap["status"] = "error";
+        return retMap;
     }
 
     if ( send_length(sd, h_length) != OK ) {
-        return -1;
+        retMap["status"] = "error";
+        return retMap;
     }
 
-    if ( recv_data(sd, h_length) != OK ) {
-        return -1;
+    if ( recv_data(sd, h_length, retMap) != OK ) {
+        retMap["status"] = "error";
+        return retMap;
     }
 
     close(sd);
-    return 0;
+    retMap["status"] = "ok";
+    return retMap;
 }
 
 

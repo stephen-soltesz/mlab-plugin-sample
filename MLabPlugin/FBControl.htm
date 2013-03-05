@@ -55,6 +55,16 @@
                 alert("Plugin is not working :(");
             }
         }
+        function show( id ) { 
+            document.getElementById(id).style.visibility = 'visible'; 
+            document.getElementById(id).style.height = '90px'; 
+            document.getElementById(id).focus(); 
+        } 
+        function hide( id ) { 
+            document.getElementById(id).style.visibility = 'hidden'; 
+            document.getElementById(id).style.height = '1px'; 
+            document.getElementById(id).focus(); 
+        }
     </script>
 <body onload="load()">
 
