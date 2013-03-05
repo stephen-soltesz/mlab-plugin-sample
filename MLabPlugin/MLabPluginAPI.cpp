@@ -63,6 +63,7 @@ int recv_data(int sd, int h_length, FB::VariantMap& retMap) {
             fprintf(stderr, "ret==0\n");
             fprintf(stderr, "received: %d\n", h_length);
             fprintf(stderr, "received: %d\n", h_recvd);
+            retMap["status"] = "error";
             break;
         }
         h_recvd += ret;
@@ -134,8 +135,9 @@ int connect_to_server(const char *hostname)
 FB::VariantMap MLabPluginAPI::transferTest(const std::string& hostname, long h_length)
 {
     FB::VariantMap retMap;
-
     int sd=0;
+
+    retMap["status"] = "ok";
     sd = connect_to_server(hostname.c_str());
     if ( sd == -1 ) {
         perror("socket");
@@ -154,7 +156,6 @@ FB::VariantMap MLabPluginAPI::transferTest(const std::string& hostname, long h_l
     }
 
     close(sd);
-    retMap["status"] = "ok";
     return retMap;
 }
 
