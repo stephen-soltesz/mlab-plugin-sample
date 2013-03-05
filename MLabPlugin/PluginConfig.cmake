@@ -39,7 +39,7 @@ set(MOZILLA_PLUGINID "measurementlab.net/MLabPlugin")
 # strings
 set(FBSTRING_CompanyName "Measurement Lab")
 set(FBSTRING_PluginDescription "Plugin for M-Lab client-side tests")
-set(FBSTRING_PLUGIN_VERSION "1.0.0.0")
+set(FBSTRING_PLUGIN_VERSION "1.0.1")
 set(FBSTRING_LegalCopyright "Copyright 2013 Measurement Lab")
 set(FBSTRING_PluginFileName "np${PLUGIN_NAME}.dll")
 set(FBSTRING_ProductName "MLab Plugin")
