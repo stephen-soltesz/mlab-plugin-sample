@@ -80,6 +80,7 @@ public:
     void transferTest(const std::string& hostname, long h_length, const FB::JSObjectPtr& callback);
     void transferTest_thread(const std::string& hostname, long h_length, const FB::JSObjectPtr& callback);
     FB::variant status(const std::string& msg);
+    void log(const std::string& msg) { m_host->htmlLog(msg); };
     
     // Event helpers
     FB_JSAPI_EVENT(test, 0, ());

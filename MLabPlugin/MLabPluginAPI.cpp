@@ -89,6 +89,8 @@ int recv_data(MLabPluginAPI *t, int sd, int h_length, FB::VariantMap& retMap) {
         if ( last_status + 1 < tdiff ) {
             status(t, tdiff, h_recvd);
             fprintf(stderr, "status time: %f\n", get_ts()-t2);
+            snprintf(data, sizeof(data), "status time: %f\n", get_ts()-t2);
+            t->log(std::string(data));
             last_status = tdiff;
         }
     }
