@@ -28,6 +28,21 @@
 #define min(x,y)    (x < y ? x : y)
 #define OK          0
 
+double get_ts() {
+    struct timeval tv1;
+    gettimeofday(&tv1, NULL);
+    return (tv1.tv_sec + tv1.tv_usec/1.0e6);
+}
+
+int status(MLabPluginAPI *t, double tdiff, int amount) {
+    char buf[100];
+    snprintf(buf, sizeof(buf), "% 7.3f sec, %8d bytes -- %7.3f Mbps\n", 
+             tdiff, amount, ((8.0*amount)/tdiff)/1.0e6);
+    fprintf(stderr, buf);
+    t->status(std::string(buf));// fire_status(buf);
+    return 0;
+}
+
 int send_length(int sd, int h_length) {
     int n_length = htonl(h_length); 
     /* send length requested from server */
@@ -38,9 +53,12 @@ int send_length(int sd, int h_length) {
     return OK;
 }
 
-int recv_data(int sd, int h_length, FB::VariantMap& retMap) {
+int recv_data(MLabPluginAPI *t, int sd, int h_length, FB::VariantMap& retMap) {
+    double t0=0;
     double t1=0;
     double t2=0;
+    double tdiff=0;
+    double last_status=0;
     struct timeval tv1;
     struct timeval tv2;
     char    data[DIRSIZE];
@@ -48,8 +66,7 @@ int recv_data(int sd, int h_length, FB::VariantMap& retMap) {
     int    recvd_length;
     int    ret=0;
 
-    gettimeofday(&tv1, NULL);
-    t1 = tv1.tv_sec + tv1.tv_usec/1.0e6;
+    t1 = get_ts();
     h_recvd = 0;
 
     while ( h_recvd < h_length ) {
@@ -67,11 +84,20 @@ int recv_data(int sd, int h_length, FB::VariantMap& retMap) {
             break;
         }
         h_recvd += ret;
+        t2 = get_ts();
+        tdiff = t2-t1;
+        if ( last_status + 1 < tdiff ) {
+            status(t, tdiff, h_recvd);
+            fprintf(stderr, "status time: %f\n", get_ts()-t2);
+            last_status = tdiff;
+        }
     }
 
-    gettimeofday(&tv2, NULL);
-    t2 = tv2.tv_sec + tv2.tv_usec/1.0e6;
+    t2 = get_ts();
+    tdiff = t2-t1;
+    status(t, tdiff, h_recvd);
 
+    t->status("done\n");
     retMap["requested"] = h_length;
     retMap["received"] = h_recvd;
     retMap["time"] = t2-t1;
@@ -129,10 +155,17 @@ int connect_to_server(const char *hostname)
         exit(1);
     }
 */
-
+ 
+void MLabPluginAPI::transferTest(const std::string& hostname, long h_length, const FB::JSObjectPtr &callback)
+{
+    boost::thread m_thread;
+    m_thread = boost::thread(boost::bind(&MLabPluginAPI::transferTest_thread, this, hostname, h_length, callback));
+    m_thread.detach();  // cleans up on exit
+}
 
 //FB::variant MLabPluginAPI::transferTest(const std::string& hostname, long h_length)
-FB::VariantMap MLabPluginAPI::transferTest(const std::string& hostname, long h_length)
+//void MLabPluginAPI::transferTest_thread(const std::string& hostname, long h_length, FB::JSObjectPtr &callback)
+void MLabPluginAPI::transferTest_thread(const std::string& hostname, long h_length, const FB::JSObjectPtr &callback)
 {
     FB::VariantMap retMap;
     int sd=0;
@@ -142,21 +175,24 @@ FB::VariantMap MLabPluginAPI::transferTest(const std::string& hostname, long h_l
     if ( sd == -1 ) {
         perror("socket");
         retMap["status"] = "error";
-        return retMap;
+        goto transfer_end;
     }
 
     if ( send_length(sd, h_length) != OK ) {
         retMap["status"] = "error";
-        return retMap;
+        goto transfer_end;
     }
 
-    if ( recv_data(sd, h_length, retMap) != OK ) {
+    if ( recv_data(this, sd, h_length, retMap) != OK ) {
         retMap["status"] = "error";
-        return retMap;
+        goto transfer_end;
     }
 
+transfer_end:
     close(sd);
-    return retMap;
+    //callback->InvokeAsync("", FB::variant_list_of(shared_from_this())(retMap));
+    callback->InvokeAsync("", FB::variant_list_of(retMap));
+    return;
 }
 
 
@@ -198,6 +234,13 @@ FB::variant MLabPluginAPI::echo(const FB::variant& msg)
     static int n(0);
     fire_echo("So far, you clicked this many times: ", n++);
 
+    // return "foobar";
+    return msg;
+}
+
+FB::variant MLabPluginAPI::status(const std::string& msg)
+{
+    fire_status(msg);
     // return "foobar";
     return msg;
 }
@@ -297,6 +340,4 @@ FB::variant MLabPluginAPI::get_hostname()
     } else {
         return "no hostname, sorry";
     }
-//    return getPlugin()->m_params("hostname");
-    //return getPlugin()->getParam("hostname");
 }

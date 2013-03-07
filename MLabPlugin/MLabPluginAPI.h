@@ -10,6 +10,7 @@
 #include "JSAPIAuto.h"
 #include "BrowserHost.h"
 #include "MLabPlugin.h"
+#include <boost/thread/thread.hpp>
 
 #ifndef H_MLabPluginAPI
 #define H_MLabPluginAPI
@@ -36,6 +37,7 @@ public:
         registerMethod("add",       make_method(this, &MLabPluginAPI::add));
         registerMethod("webtest",   make_method(this, &MLabPluginAPI::webtest));
         registerMethod("transferTest",   make_method(this, &MLabPluginAPI::transferTest));
+        registerMethod("status",      make_method(this, &MLabPluginAPI::status));
         //registerMethod("hostname",  make_method(this, &MLabPluginAPI::add));
         
         // Read-write property
@@ -74,11 +76,15 @@ public:
     // Method echo
     FB::variant echo(const FB::variant& msg);
     FB::variant webtest(const std::string& val);
-    FB::VariantMap transferTest(const std::string& hostname, long h_length);
+    //FB::VariantMap transferTest(const std::string& hostname, long h_length);
+    void transferTest(const std::string& hostname, long h_length, const FB::JSObjectPtr& callback);
+    void transferTest_thread(const std::string& hostname, long h_length, const FB::JSObjectPtr& callback);
+    FB::variant status(const std::string& msg);
     
     // Event helpers
     FB_JSAPI_EVENT(test, 0, ());
     FB_JSAPI_EVENT(echo, 2, (const FB::variant&, const int));
+    FB_JSAPI_EVENT(status, 1, (const FB::variant&));
 
     // Method test-event
     void testEvent();
