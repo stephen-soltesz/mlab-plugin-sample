@@ -33,5 +33,21 @@ If you receive a build error like:
 
 Then this is probably b/c your version of cmake-data names the module FindCURL
 instead of the referenced FindCurl.  A better work-around is unknown, but
-manually updating the CMakeLists.txt with the correct name allows the prep to
-finish.
+manually updating the src/libs/curl/CMakeLists.txt with the correct name 
+allows the prep to finish.
+
+
+Windows
+=======
+
+For dependencies:
+http://www.firebreath.org/display/documentation/Building+with+Visual+Studio+Express
+
+And afterward:
+http://www.firebreath.org/display/documentation/Building+on+Windows
+
+Mac OS X
+========
+
+http://www.firebreath.org/display/documentation/Building+on+Mac+OS+X
+
