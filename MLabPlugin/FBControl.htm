@@ -38,7 +38,9 @@
 
         function add_to_output(txt){
             var obj = getElement('output');
-            obj.innerText += txt;
+            if (txt && txt.replace) { 
+                obj.innerHTML += txt.replace("\n", "<br/>");
+            }
         }
 
         function pluginLoaded() {
