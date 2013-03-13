@@ -31,8 +31,23 @@
             });
         }
 
+        function getElement(txt)
+        {
+            return document.getElementById(txt);
+        }
+
+        function add_to_output(txt){
+            var obj = getElement('output');
+            obj.innerText += txt;
+        }
+
         function pluginLoaded() {
             //alert("Plugin loaded!");
+            addEvent(plugin(), 'status', add_to_output);
+        }
+
+        function runTest(time_len) {
+            plugin().transferTest("mlab2.nuq0t.measurement-lab.org", time_len, add_to_output);
         }
         
         function addTestEvent()
@@ -83,6 +98,7 @@
 
 <a href="#" onclick="javascript:testEvent()">Fire a test event</a> <br />
 
+<pre id="output"></pre>
 
 </body>
 </html>

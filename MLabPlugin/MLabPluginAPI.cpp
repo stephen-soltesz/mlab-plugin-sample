@@ -11,6 +11,7 @@
 
 #include "MLabPluginAPI.h"
 #include "curl/curl.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,12 +23,27 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <sys/time.h>
+#include <boost/asio.hpp>
+
+#include <iostream>
+#include <boost/array.hpp>
+#include <boost/asio.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
+#define _ITERATOR_DEBUG_LEVEL 0
+
+using namespace boost::posix_time;
+using boost::asio::ip::tcp;
+#include "lib.hpp"
+
+//tcp::resolver::query query("test" ,1234);
 
 #define PORT        12345
 #define DIRSIZE     8192
 #define min(x,y)    (x < y ? x : y)
 #define OK          0
 
+#if 0
 double get_ts() {
     struct timeval tv1;
     gettimeofday(&tv1, NULL);
@@ -144,6 +160,7 @@ int connect_to_server(const char *hostname)
 
     return sd;
 }
+#endif
 
 /* int main(int argc, char **argv)
 {
@@ -170,9 +187,17 @@ void MLabPluginAPI::transferTest(const std::string& hostname, long h_length, con
 void MLabPluginAPI::transferTest_thread(const std::string& hostname, long h_length, const FB::JSObjectPtr &callback)
 {
     FB::VariantMap retMap;
-    int sd=0;
+    int ret=0;
+    SampleTestClient stc(hostname, this);
 
     retMap["status"] = "ok";
+
+    ret = stc.run_client_test(hostname, h_length, DIRECTION_CLIENT_DOWNLOAD);
+    if ( ret != OK ) {
+        retMap["status"] = "error";
+        goto transfer_end;
+    }
+#if 0
     sd = connect_to_server(hostname.c_str());
     if ( sd == -1 ) {
         perror("socket");
@@ -189,11 +214,13 @@ void MLabPluginAPI::transferTest_thread(const std::string& hostname, long h_leng
         retMap["status"] = "error";
         goto transfer_end;
     }
+#endif
 
 transfer_end:
-    close(sd);
+    //close(sd);
     //callback->InvokeAsync("", FB::variant_list_of(shared_from_this())(retMap));
     callback->InvokeAsync("", FB::variant_list_of(retMap));
+    status(hostname + " ok\n");
     return;
 }
 
